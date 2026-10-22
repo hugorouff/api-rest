@@ -1,0 +1,22 @@
+{
+    "champions": [
+        {
+            "id": 1,
+            "name": "Garen",
+            "region": "Demacia",
+            "image": "https://static.bigbrain.gg/assets/lol/riot_static/15.3.1/img/champion/Garen.png"
+        },
+        {
+            "id": 2,
+            "name": "Katarina",
+            "region": "Noxus",
+            "image": "https://static.bigbrain.gg/assets/lol/riot_static/15.3.1/img/champion/Katarina.png"
+        },
+        {
+            "id": 3,
+            "name": "Irelia",
+            "region": "Ionia",
+            "image": "https://static.bigbrain.gg/assets/lol/riot_static/15.3.1/img/champion/Irelia.png"
+        }
+    ]
+}
