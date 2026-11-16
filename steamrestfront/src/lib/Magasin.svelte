@@ -1,5 +1,6 @@
 <script lang="ts">
     import { API_URL } from "../config";
+    import { authFetch } from "./auth";
     import type { Jeu } from "../model/Jeu";
     import type { Utilisateur } from "../model/Utilisateur";
 
@@ -18,10 +19,12 @@
             console.error('Error fetching data:', error);
         });
 
-    fetch(API_URL + '/utilisateurs')
+    authFetch('/utilisateurs')
         .then(response => response.json())
         .then(data => {
-            utilisateurs = data;
+            utilisateurs = Array.isArray(data) ? data : [];
+            // Un utilisateur simple ne voit que lui-même : on le présélectionne
+            if (!utilisateurSelectionne) utilisateurSelectionne = utilisateurs[0] ?? null;
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -29,11 +32,8 @@
 
     function ajouterJeu(jeu: Jeu) {
         if (utilisateurSelectionne && jeu) {
-            fetch(API_URL + '/achats', {
+            authFetch('/achats', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 body: JSON.stringify({ JeuID: jeu.jeuId, UtilisateurID: utilisateurSelectionne.utilisateurId })
             })
                 .then(response => response.json())

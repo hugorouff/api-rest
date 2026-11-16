@@ -1,5 +1,6 @@
 <script lang="ts">
     import { API_URL } from "../config";
+    import { authFetch } from "./auth";
     import type { BibliothequeJeux } from "../model/BibliothequeJeux";
     import type { Utilisateur } from "../model/Utilisateur";
     import type { Jeu } from "../model/Jeu";
@@ -13,10 +14,10 @@
     let jeuSelectionneBiblio: BibliothequeJeux | null = biblioUtilisateurSelectionne[indexJeuSelectionne] || null;
     let loadingBiblio = false;
 
-    fetch(API_URL + '/utilisateurs')
+    authFetch('/utilisateurs')
         .then(response => response.json())
         .then(data => {
-            utilisateurs = data;
+            utilisateurs = Array.isArray(data) ? data : [];
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -44,9 +45,13 @@
     
     function fetchUserData(user: Utilisateur) {
         loadingBiblio = true;
-        fetch(API_URL + '/utilisateurs/' + user.utilisateurId + '/bibliothequejeux')
+        authFetch('/utilisateurs/' + user.utilisateurId + '/bibliothequejeux')
             .then(response => response.json())
             .then(async (data) => {
+                if (!Array.isArray(data)) {
+                    loadingBiblio = false;
+                    return; // erreur (403, 404...) : on ne touche pas à l'affichage
+                }
                 biblioUtilisateurSelectionne = await Promise.all(data.map(async (d: BibliothequeJeux) => {
                     return await enrichirBiblioJeux(d);
                 }));
@@ -92,7 +97,7 @@
 
     function sendUninstallRequest(jeuBiblio: BibliothequeJeux | null) {
         if(!utilisateurSelectionne || !jeuBiblio) return; 
-        fetch(API_URL + '/utilisateurs/'+ utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
+        authFetch('/utilisateurs/'+ utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -111,7 +116,7 @@
 
     function sendInstallRequest(jeuBiblio: BibliothequeJeux | null) {
         if(!utilisateurSelectionne || !jeuBiblio) return; 
-        fetch(API_URL + '/utilisateurs/'+ utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
+        authFetch('/utilisateurs/'+ utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -131,7 +136,7 @@
 
     function sendDeleteFromLibraryRequest(jeuBiblio: BibliothequeJeux | null) {
         if(!utilisateurSelectionne || !jeuBiblio) return; 
-        fetch(API_URL + '/utilisateurs/' + utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
+        authFetch('/utilisateurs/' + utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
